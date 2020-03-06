@@ -2,27 +2,37 @@ defmodule GreetingWebTest do
   use ExUnit.Case, async: true
   use Plug.Test
 
-  @opts GreetingWeb.init([])
+  defmodule FakeGreeting do
+    def greet(nil) do
+      "called with nil"
+    end
 
-  describe "calling GET /greet" do
-    test "return 'Hello my friend!'" do
+    def greet("A_NAME") do
+      "called with A_NAME"
+    end
+  end
+
+  @opts GreetingWeb.init([greeting: FakeGreeting])
+
+  describe "GET /greet" do
+    test "will call a greeting module with a nil as name" do
       conn = conn(:get, "/greet")
 
       conn = GreetingWeb.call(conn, @opts)
 
       assert conn.status == 200
-      assert conn.resp_body == "Hello my friend!"
+      assert conn.resp_body == "called with nil"
     end
   end
 
-  describe "calling GET /greet?name=A_NAME" do
-    test "return 'Hello A_NAME!'" do
+  describe "GET /greet?name=A_NAME" do
+    test "will call a greeting module with A_NAME as name" do
       conn = conn(:get, "/greet?name=A_NAME")
 
       conn = GreetingWeb.call(conn, @opts)
 
       assert conn.status == 200
-      assert conn.resp_body == "Hello A_NAME!"
+      assert conn.resp_body == "called with A_NAME"
     end
   end
 end
